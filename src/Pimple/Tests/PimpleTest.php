@@ -437,4 +437,49 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
         });
         $this->assertSame('bar.baz', $pimple['bar']);
     }
+
+    public function testGetWithString()
+    {
+        $pimple = new Container();
+        $pimple['param'] = 'value';
+
+        $this->assertEquals('value', $pimple->get('param'));
+    }
+
+    public function testGetWithClosure()
+    {
+        $pimple = new Container();
+        $pimple['service'] = function () {
+            return new Fixtures\Service();
+        };
+
+        $this->assertInstanceOf('Pimple\Tests\Fixtures\Service', $pimple->get('service'));
+    }
+
+    /**
+     * @expectedException \Psr\Container\NotFoundExceptionInterface
+     * @expectedExceptionMessage Identifier "foo" is not defined.
+     */
+    public function testGetUnknownEntry()
+    {
+        $pimple = new Container();
+
+        $pimple->get('foo');
+    }
+
+    public function testHas()
+    {
+        $pimple = new Container();
+        $pimple['param'] = 'value';
+        $pimple['service'] = function () {
+            return new Fixtures\Service();
+        };
+
+        $pimple['null'] = null;
+
+        $this->assertTrue($pimple->has('param'));
+        $this->assertTrue($pimple->has('service'));
+        $this->assertTrue($pimple->has('null'));
+        $this->assertFalse($pimple->has('non_existent'));
+    }
 }

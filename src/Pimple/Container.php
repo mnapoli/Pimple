@@ -31,7 +31,7 @@ namespace Pimple;
  *
  * @author  Fabien Potencier
  */
-class Container implements \ArrayAccess
+class Container implements \ArrayAccess, \Psr\Container\ContainerInterface
 {
     private $values = array();
     private $factories;
@@ -88,12 +88,12 @@ class Container implements \ArrayAccess
      *
      * @return mixed The value of the parameter or an object
      *
-     * @throws \InvalidArgumentException if the identifier is not defined
+     * @throws \Psr\Container\NotFoundExceptionInterface if the identifier is not defined
      */
     public function offsetGet($id)
     {
         if (!isset($this->keys[$id])) {
-            throw new \InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $id));
+            throw new NotFoundException(sprintf('Identifier "%s" is not defined.', $id));
         }
 
         if (
@@ -278,5 +278,21 @@ class Container implements \ArrayAccess
         }
 
         return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get($id)
+    {
+        return $this->offsetGet($id);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function has($id)
+    {
+        return $this->offsetExists($id);
     }
 }
